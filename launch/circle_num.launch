@@ -1,0 +1,14 @@
+ <launch>
+
+<arg name="n"  default="3" doc="number of turtlebots"/>
+<!-- <arg name="c_x"  default="0" doc="center"/>
+<arg name="c_y"  default="0" doc="center"/>
+<arg name="r"  default="1.0" doc="radius of circle"/> -->
+
+
+<rosparam  subst_value="True">
+num: $(arg n)
+</rosparam>
+<node pkg="tbot_main" type="swarm_motion" name="fp" output="screen">
+</node>
+</launch>

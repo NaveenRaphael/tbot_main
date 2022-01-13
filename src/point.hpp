@@ -1,0 +1,62 @@
+class point2D{
+public:
+    double x;
+    double y;
+    point2D(double, double);
+    point2D();
+
+    point2D operator -(const point2D&);
+    point2D operator +(const point2D&);
+    point2D operator *(const double&);
+
+    double norm2();
+    void set(double, double);
+};
+
+point2D::point2D(double a, double b){
+    x=a;
+    y=b;
+}
+
+point2D::point2D(){
+    x=0;
+    y=0;
+}
+
+point2D point2D::operator-(const point2D& other){
+    return point2D(this->x-other.x, this->y-other.y);
+}
+
+point2D point2D::operator+(const point2D& other){
+    return point2D(this->x+other.x, this->y+other.y);
+}
+
+point2D point2D::operator*(const double& other){
+    return point2D(this->x*other, this->y*other);
+}
+
+double point2D::norm2(){
+    return x*x+y*y;
+}
+
+void point2D::set(double x, double y){
+  x=x;
+  y=y;
+}
+
+double s2dis(double toa, double fra)
+{
+  double dif = toa - fra;
+  if (dif > M_PI)
+  {
+    dif -= 2 * M_PI;
+  }
+  else
+  {
+    if (dif < -M_PI)
+    {
+      dif += 2 * M_PI;
+    }
+  }
+  return dif;
+}
