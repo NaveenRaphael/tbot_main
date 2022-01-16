@@ -45,7 +45,7 @@ SoftBody::SoftBody(int n)
     orientation = 0;
 
     velocityCOM.set(0, 0);
-    omega = 0.05;
+    omega = 0.1;
 
     last_time = ros::Time::now();
 }
