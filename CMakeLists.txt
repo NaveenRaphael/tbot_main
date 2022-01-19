@@ -51,12 +51,12 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * uncomment the generate_messages entry below
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
-## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+
+# Generate messages in the 'msg' folder
+add_message_files(
+  FILES
+  trajectory.msg
+)
 
 ## Generate services in the 'srv' folder
 add_service_files(
@@ -111,7 +111,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES tbot_main
-#  CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy sensor_msgs std_msgs tf
+ CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy sensor_msgs std_msgs tf message_runtime
 #  DEPENDS system_lib
 )
 
@@ -217,11 +217,14 @@ target_link_libraries(velocityController ${catkin_LIBRARIES})
 add_executable(positionController src/positionController.cpp)
 target_link_libraries(positionController ${catkin_LIBRARIES})
 
-add_executable(follow_path src/follow_path.cpp)
-target_link_libraries(follow_path ${catkin_LIBRARIES})
+add_executable(trajectoryControl src/trajectory_tracking.cpp)
+target_link_libraries(trajectoryControl ${catkin_LIBRARIES})
 
 add_executable(swarm_motion src/swarm_motion.cpp)
 target_link_libraries(swarm_motion ${catkin_LIBRARIES})
+
+add_executable(swarm_motion2 src/swarm_motion2.cpp)
+target_link_libraries(swarm_motion2 ${catkin_LIBRARIES})
 
 catkin_install_python(PROGRAMS src/FTP.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

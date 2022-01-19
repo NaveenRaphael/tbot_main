@@ -1,6 +1,17 @@
+/*
+TODO:
+implement the control law in https://www.sciencedirect.com/science/article/pii/S2405896315013890
+
+needs the following:
+
+Need to think:
+How to select different trajectories?
+
+*/
+
 #include <ros/ros.h>
 #include "tbot_main/velocityRequest.h"
-#include "tbot_main/positionRequest.h"
+#include "tbot_main/trajectory.h"
 #include <geometry_msgs/Twist.h>
 #include "point.hpp"
 #include <tf/transform_broadcaster.h>
@@ -15,34 +26,26 @@
 #define LINEAR_VELOCITY 0.3
 #define ANGULAR_VELOCITY 1.5
 
-#define Pv 5
-#define Pw 5
+#define c1 1
+#define c2 0.2
+#define c3 1
 
-/*
-TODO
-/Done
-
-Position Drive: listens to end position; current position; generates command velocity
-
-*/
-
-class Position_drive
+class Trajectory_control
 {
 public:
-    Position_drive();
-    ~Position_drive();
+    Trajectory_control();
+    ~Trajectory_control();
     bool init(double, double);
-    bool loop();                               //Run every iteration
-    void update_fpos(double, double);          //Update end position
-    void update_vel();                         //Generate velocities
+    void loop(); //Run every iteration
+
+    void update_vel(); //Generate velocities
 
     ros::NodeHandle nh_;
-    ros::ServiceServer change_pos;
+
+    ros::Subscriber trajectory;
     ros::Subscriber get_odom;
 
-    bool store_position(tbot_main::positionRequest::Request &r,
-                        tbot_main::positionRequest::Response &g);
-
+    void get_trajectory(const tbot_main::trajectory &data); //New
     void update_ipos(const nav_msgs::Odometry &data);
     tf::Transform get_transform();
     std::string get_TF_name();
@@ -53,20 +56,19 @@ private:
 
     ros::ServiceClient cmd_vel_pub_;
 
+    tbot_main::trajectory togo;
+
     point2D start;
     point2D present;
     double ori;
-    point2D fin;
 
     std::string TF_name;
-
-    bool lazy;
 
     double v;
     double om;
 };
 
-Position_drive::Position_drive()
+Trajectory_control::Trajectory_control()
     : nh_priv_("~")
 {
     //Init gazebo ros turtlebot3 node
@@ -74,19 +76,18 @@ Position_drive::Position_drive()
     nh_.getParam("x", x);
     nh_.getParam("y", y);
     nh_.getParam("tf", TF_name);
-    ROS_INFO("TurtleBot3 Position Node Init");
+    ROS_INFO("TurtleBot3 Trajectory Control Node Init");
     // ROS_INFO(x)
     auto ret = init(x, y);
     ROS_ASSERT(ret);
-    lazy = true;
 }
 
-Position_drive::~Position_drive()
+Trajectory_control::~Trajectory_control()
 {
     ros::shutdown();
 }
 
-void Position_drive::update_ipos(const nav_msgs::Odometry &data)
+void Trajectory_control::update_ipos(const nav_msgs::Odometry &data)
 {
     double x = data.pose.pose.position.x;
     double y = data.pose.pose.position.y;
@@ -104,72 +105,49 @@ void Position_drive::update_ipos(const nav_msgs::Odometry &data)
     ori = ang;
 }
 
-bool Position_drive::init(double x, double y)
+void Trajectory_control::get_trajectory(const tbot_main::trajectory &data)
+{
+    togo = data;
+}
+
+bool Trajectory_control::init(double x, double y)
 {
     // initialize publishers
     start = point2D(-x, -y);
     ROS_INFO("Start position: %f, %f", start.x, start.y);
     cmd_vel_pub_ = nh_.serviceClient<tbot_main::velocityRequest>("change_tbot_vel");
-    change_pos = nh_.advertiseService("change_tbot_pos", &Position_drive::store_position, this);
-    get_odom = nh_.subscribe("odom", 1000, &Position_drive::update_ipos, this);
+
+    trajectory = nh_.subscribe("trajectory", 100, &Trajectory_control::get_trajectory, this);
+    get_odom = nh_.subscribe("odom", 1000, &Trajectory_control::update_ipos, this);
 
     return true;
 }
 
-bool Position_drive::loop()
+void Trajectory_control::loop()
 {
-    if (!lazy)
-    {
-        tbot_main::velocityRequest val;
-        update_vel();
+    tbot_main::velocityRequest val;
+    update_vel();
 
-        val.request.v = v;
-        val.request.w = om;
+    val.request.v = v;
+    val.request.w = om;
 
-        cmd_vel_pub_.call(val);
-    }
-    return true;
+    cmd_vel_pub_.call(val);
 }
 
-bool Position_drive::store_position(
-    tbot_main::positionRequest::Request &r,
-    tbot_main::positionRequest::Response &g)
+void Trajectory_control::update_vel()
 {
-    update_fpos(r.x, r.y);
-    g.r = true;
-    return true;
+    point2D traj = point2D(togo.x, togo.y);
+    point2D errorP = (traj-present).rotate(ori);
+    double errorT = s2dis(togo.t,ori);
+    double denom=sqrt(1+errorP.norm2());
+    v= togo.v+ c1*errorP.x/denom;
+    om=togo.w + c2*togo.v*(errorP.y*cos(errorT/2)-errorP.x*sin(errorT/2))/denom+ c3*sin(errorT/2);
+    
+    // ROS_INFO("v:%.3f, w: %.3f, error_x: %.3f, error_y: %.3f, error_orient: %.3f", v, om, errorP.x, errorP.y, errorT*RAD2DEG);
+
 }
 
-void Position_drive::update_fpos(double x, double y)
-{
-    fin.x = x;
-    fin.y = y;
-    lazy = false;
-}
-/*
-Control Law:
-Given present position, and final position, to find v and omega
-*/
-void Position_drive::update_vel()
-{
-    point2D error = fin - present;
-    if (error.norm2() < EPS)
-    {
-        lazy = true;
-        v=0;
-        om=0;
-        return;
-    }
-    double ang = atan2(error.y, error.x);
-
-    double eror = s2dis(ang, ori);
-    double ernorm = error.norm2();
-
-    v = Pv*ernorm * cos(eror);
-    om = Pw*eror;
-}
-
-tf::Transform Position_drive::get_transform()
+tf::Transform Trajectory_control::get_transform()
 {
     tf::Transform transform;
     transform.setOrigin(tf::Vector3(present.x, present.y, 0.0));
@@ -179,7 +157,7 @@ tf::Transform Position_drive::get_transform()
     return transform;
 }
 
-std::string Position_drive::get_TF_name()
+std::string Trajectory_control::get_TF_name()
 {
     return TF_name;
 }
@@ -188,7 +166,7 @@ int main(int argc, char *argv[])
 {
     ros::init(argc, argv, "tbot_position");
 
-    Position_drive tbot;
+    Trajectory_control tbot;
     static tf::TransformBroadcaster br;
     std::string base_name = tbot.get_TF_name();
 

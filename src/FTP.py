@@ -36,7 +36,7 @@ def real_sol(pts):
 
 
 def broadcast_point(p):
-    follower_name="/tb3_3"
+    follower_name="/tb3_4"
     rospy.wait_for_service(f"{follower_name}/change_tbot_pos")
     try:
         request = rospy.ServiceProxy(f"{follower_name}/change_tbot_pos", positionRequest)

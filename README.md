@@ -16,6 +16,7 @@ This is presently a work in progress
 
 ### Controlling a swarm
 Note that `<i>` is used to indicate the ith bot.
+The following is deprecated and it will soon be updated.
 Most of these commands can be copied from the [appendix](#quick-codes-to-copy-paste)
 1. Switch on the robots and connect via ssh
 2. Run the following command in each of the bots
@@ -32,23 +33,24 @@ Most of these commands can be copied from the [appendix](#quick-codes-to-copy-pa
 4. [`velocityRequest`](srv/velocityRequest.srv) : "requests" the turtlebot to have the specified velocity
 
 ### Source files:
-1. [`follow_path.cpp`](src/follow_path.cpp) : (Deprecated- see [`swarm_motion.cpp`](###Source-files)) Give the number of turtlebots, center of circle to orbit and radius of circle, and watch the turtlebots follow this
+1. [`softbody.hpp`](src/softbody.hpp) : (WIP) In line of a "Rigid Body"; the body has a position and orientation at every instant, but the distance between any point and the center can change. This was made to model a swarm; the position of every point on the swarm can be specified. 
 2. [`FTP.py`](src/FTP.py) : (WIP) Does 3 things:
    1. Identify the actual FTP solution and publishes in `tf`
    2. Identify the asymptotic solution of the FTP and publish in `tf`.
-   3. Control the follower bot to follow the asymptotic solution (WIP)
-3. [`plainVelocityControl.cpp`](src/plainVelocityControl.cpp) : (Dropped - will be deleted)
+   3. Control the follower bot to follow the asymptotic solution
+3. [`obstacle.hpp`](src/obstacle.hpp) : (WIP)
 4.  [`point.hpp`](src/point.hpp) : Contains the point class which contains useful functions to model 2D points for turtlebots
 5.  [`positionController.cpp`](src/positionController.cpp) : Waits for the service [`positionRequest`](srv/positionRequest.srv) and calculated the velocity and omega to reach that point
     1.  The control law can be changed to suit the needs.
     2.  Also publishes the position of the bot in tf
     3.  Event-triggered control ready
-
-6. [`swarm_motion.cpp`](src/swarm_motion.cpp) : Implements the swarm as a "SoftBody". 
+6. [`swarm_motion.cpp`](src/swarm_motion.cpp) : (Deprecated) Implements the swarm as a "SoftBody". 
    1. The velocity and omega of the whole body can be controlled.
    2. The r and phi of each of the bot from the CoM can also be controlled
-7. [`velocityController.cpp`](src/velocityController.cpp) : Waits for the service [`velocityRequest`](srv/velocityRequest.srv)
-   1. Event-triggered control ready 
+7. [`swarm_motion2.cpp`](src/swarm_motion2.cpp) : Implements the swarm as a "SoftBody". Uses trajectory control
+8. [`velocityController.cpp`](src/velocityController.cpp) : Waits for the service [`velocityRequest`](srv/velocityRequest.srv)
+   1. Event-triggered control ready
+9. [`trajectory_tracking.cpp`](src/trajectory_tracking.cpp) : Implements trajectory tracking implemented by the paper referenced. Can be used to implement position control 
 
 
 ## Troubleshooting
@@ -59,11 +61,12 @@ The following are the problems I have faced;
    2. make changes to the line which have ROS mentioned, then save and close
    3.  run `source ~/.bashrc`
 3. Presently, the computers and the bots need to be connected to the router `CONTROL LAB 203C`. If it is not connected to this, please check the [appendix](##Changing-router)
+4. The computer sometimes disconnects from the network. Not sure why or when. Reconnect Dongle to fix.
 
 
 Todo
 ---
-1. Verify the `src/FTP.py` works
+1. Verify the `src/FTP.py` works //Done
 2. Make a map using the LIDAR data from which the obstacle data can be extracted easily. Needed for the "old" obstacle avoidance code
 
  

@@ -9,7 +9,7 @@ x: $(arg x)
 y: $(arg y)
 tf: $(arg tf)
 </rosparam>
-<node pkg="tbot_main" type="velocityController" name="velocity_controller"/>
-<node pkg="tbot_main" type="positionController" name="position_controller" output="screen">
+<node pkg="tbot_main" type="velocityController" name="velocity_Controller"/>
+<node pkg="tbot_main" type="trajectoryControl" name="Trajectory_Controller" output="screen">
 </node>
 </launch>

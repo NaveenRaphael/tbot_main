@@ -1,3 +1,5 @@
+#ifndef TBOT_POINT2D
+#define TBOT_POINT2D
 class point2D{
 public:
     double x;
@@ -11,6 +13,8 @@ public:
 
     double norm2();
     void set(double, double);
+    point2D rotate(double);
+    double get_angle();
 };
 
 point2D::point2D(double a, double b){
@@ -44,6 +48,15 @@ void point2D::set(double x, double y){
   y=y;
 }
 
+point2D point2D::rotate(double angle){
+  double s= sin(angle), c=cos(angle);
+  return point2D(x*c+y*s, -x*s+y*c);
+}
+
+double point2D::get_angle(){
+  return atan2(y,x);
+}
+
 double s2dis(double toa, double fra)
 {
   double dif = toa - fra;
@@ -60,3 +73,5 @@ double s2dis(double toa, double fra)
   }
   return dif;
 }
+
+#endif
