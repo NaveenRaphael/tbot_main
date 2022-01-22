@@ -27,7 +27,7 @@ How to select different trajectories?
 #define ANGULAR_VELOCITY 1.5
 
 #define c1 1
-#define c2 0.2
+#define c2 10
 #define c3 1
 
 class Trajectory_control
@@ -139,11 +139,11 @@ void Trajectory_control::update_vel()
     point2D traj = point2D(togo.x, togo.y);
     point2D errorP = (traj-present).rotate(ori);
     double errorT = s2dis(togo.t,ori);
-    double denom=sqrt(1+errorP.norm2());
+    double denom=sqrt(0.1+errorP.norm2());
     v= togo.v+ c1*errorP.x/denom;
     om=togo.w + c2*togo.v*(errorP.y*cos(errorT/2)-errorP.x*sin(errorT/2))/denom+ c3*sin(errorT/2);
     
-    // ROS_INFO("v:%.3f, w: %.3f, error_x: %.3f, error_y: %.3f, error_orient: %.3f", v, om, errorP.x, errorP.y, errorT*RAD2DEG);
+    ROS_INFO("v:%.3f, w: %.3f, error_x: %.3f, error_y: %.3f, error_orient: %.3f", v, om, errorP.x, errorP.y, errorT*RAD2DEG);
 
 }
 
@@ -164,7 +164,7 @@ std::string Trajectory_control::get_TF_name()
 
 int main(int argc, char *argv[])
 {
-    ros::init(argc, argv, "tbot_position");
+    ros::init(argc, argv, "tbot_trajectory");
 
     Trajectory_control tbot;
     static tf::TransformBroadcaster br;
