@@ -78,7 +78,7 @@ void form_trajectory::publish(){
     char name[25];
     sprintf(name, "/tb3_%d_togo", number);
 
-    ROS_INFO("v:%.3f, w: %.3f", to_pub.v, to_pub.w);
+    // ROS_INFO("v:%.3f, w: %.3f", to_pub.v, to_pub.w);
 
     br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", name));
 

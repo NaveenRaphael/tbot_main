@@ -33,7 +33,7 @@ double SoftBody2::get_ithR(int n, double time){
 }
 
 double SoftBody2::get_orientation(double time){
-    return (time-start_time)*0.1; //Angular speed=3
+    return (time-start_time)*0.15; 
 }
 
 point2D SoftBody2::get_ithDir(int n, double time){
