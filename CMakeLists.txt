@@ -226,6 +226,9 @@ target_link_libraries(swarm_motion ${catkin_LIBRARIES})
 add_executable(swarm_motion2 src/swarm_motion2.cpp)
 target_link_libraries(swarm_motion2 ${catkin_LIBRARIES})
 
+add_executable(P2T src/P2T.cpp)
+target_link_libraries(P2T ${catkin_LIBRARIES})
+
 catkin_install_python(PROGRAMS src/FTP.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

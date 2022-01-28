@@ -5,6 +5,7 @@ This will be a comprehensive guide to using the turtlebots in the DCL.
 This is presently a work in progress
 
 ## Instructions to use
+It is recommended to have `rqt` and `rviz` open while working with the robots.
 ### Controlling an individual turtlebot
 1. Switch on the robot, and connect to it via ssh (see [this](##Username-and-password-of-the-bot))
 2. Run the following in the terminal of the bot
@@ -16,14 +17,14 @@ This is presently a work in progress
 
 ### Controlling a swarm
 Note that `<i>` is used to indicate the ith bot.
-The following is deprecated and it will soon be updated.
 Most of these commands can be copied from the [appendix](#quick-codes-to-copy-paste)
 1. Switch on the robots and connect via ssh
 2. Run the following command in each of the bots
  `ROS_NAMESPACE=<name_i> roslaunch turtlebot3_bringup turtlebot3_robot.launch multi_robot_name:="<name_i>" set_lidar_frame_id:="<name_i>/base_scan"`
-3. In step 3, run `ROS_NAMESPACE=<name_i> roslaunch tbot_main basic_control.launch x:=<x_pos_i> y:= <y_pos_i> tf:=<name_of_tf_frame _i>`
-4. The names of the services will be different based on the names given.
-5. Additionally, the `.launch` file `launch/circle_num.launch` is a work in progress to control the swarm in specific manners coded in `src/swarm_motion.cpp`. If these files are editted, run `catkin_make`   
+3. In step 3, run `ROS_NAMESPACE=<name_i> roslaunch tbot_main trajectory.launch x:=<x_pos_i> y:= <y_pos_i> tf:=<name_of_tf_frame _i>`
+4. This requires a nodes to publish trajectory data. This is done in 2 ways;
+   1. `rosrun tbot_main swarm_motion2`. Presently this code forces the bots to move in a circular trajectory
+   2. `ROS_NAMESPACE=<name_i> rosrun tbot_main P2T` converts a sequence of points to trajectories
 
 ## Files
 ### Service files:
@@ -32,9 +33,16 @@ Most of these commands can be copied from the [appendix](#quick-codes-to-copy-pa
 3. [`velocityInterrupt`](srv/velocityInterrupt.srv) : (Not Implemented) To interrupt the `velocityControl` rosnode of the turtlebot
 4. [`velocityRequest`](srv/velocityRequest.srv) : "requests" the turtlebot to have the specified velocity
 
+### Message Files:
+1. [`trajectory`](msg/trajectory.msg): Handles trajectory motion needed for the trajectory control. Has the following:
+   1. `x`: x-coordinate of the robot
+   2. `y`: y-coordinate of the robot
+   3. `t`: Orientation of the robot
+   4. `v`: Velocity at that point on the trajectory
+   5. `w`: Angular velocity at that point on the trajectory
 ### Source files:
 1. [`softbody.hpp`](src/softbody.hpp) : (WIP) In line of a "Rigid Body"; the body has a position and orientation at every instant, but the distance between any point and the center can change. This was made to model a swarm; the position of every point on the swarm can be specified. 
-2. [`FTP.py`](src/FTP.py) : (WIP) Does 3 things:
+2. [`FTP.py`](src/FTP.py) : Does 3 things:
    1. Identify the actual FTP solution and publishes in `tf`
    2. Identify the asymptotic solution of the FTP and publish in `tf`.
    3. Control the follower bot to follow the asymptotic solution
@@ -64,12 +72,6 @@ The following are the problems I have faced;
 4. The computer sometimes disconnects from the network. Not sure why or when. Reconnect Dongle to fix.
 
 
-Todo
----
-1. Verify the `src/FTP.py` works //Done
-2. Make a map using the LIDAR data from which the obstacle data can be extracted easily. Needed for the "old" obstacle avoidance code
-
- 
 # Appendix
 ## Username and password of the bot
 These are presently the default. Say the IP address of the bot is `192.168.10.102`
@@ -78,7 +80,25 @@ username:   ubuntu@192.168.10.102
 password:   turtlebot
 ``` 
 ## Quick codes to copy paste:
-1. For within the terminal of the bot
+1. For identify the IP address of the robot:
+   ```
+   nmap -sn 192.168.10.100-199
+   ```
+   To connect to the robots:
+   ```
+   ssh ubuntu@192.168.10.100
+   ssh ubuntu@192.168.10.101
+   ssh ubuntu@192.168.10.102
+   ssh ubuntu@192.168.10.103
+   ssh ubuntu@192.168.10.104
+   ssh ubuntu@192.168.10.105
+   ssh ubuntu@192.168.10.106
+   ssh ubuntu@192.168.10.108
+   ssh ubuntu@192.168.10.109
+   ssh ubuntu@192.168.10.110
+   ```
+
+2. For within the terminal of the bot
    ```
    ROS_NAMESPACE=tb3_0 roslaunch turtlebot3_bringup turtlebot3_robot.launch multi_robot_name:="tb3_0" set_lidar_frame_id:="tb3_0/base_scan"
    
@@ -92,7 +112,7 @@ password:   turtlebot
    
    ROS_NAMESPACE=tb3_5 roslaunch turtlebot3_bringup turtlebot3_robot.launch multi_robot_name:="tb3_5" set_lidar_frame_id:="tb3_5/base_scan"
    ```
-2. For basic control
+3. For basic control
    ```
    ROS_NAMESPACE=tb3_0 roslaunch tbot_main basic_control.launch x:=0 y:=0 tf:="tb0"
 
@@ -106,7 +126,20 @@ password:   turtlebot
 
    ROS_NAMESPACE=tb3_5 roslaunch tbot_main basic_control.launch x:=0 y:=0 tf:="tb5"
    ```
+4. For Trajectory Control
+   ```
+   ROS_NAMESPACE=tb3_0 roslaunch tbot_main trajectory.launch x:=0 y:=0 tf:="tb0"
 
+   ROS_NAMESPACE=tb3_1 roslaunch tbot_main trajectory.launch x:=0 y:=0 tf:="tb1"
+
+   ROS_NAMESPACE=tb3_2 roslaunch tbot_main trajectory.launch x:=0 y:=0 tf:="tb2"
+
+   ROS_NAMESPACE=tb3_3 roslaunch tbot_main trajectory.launch x:=0 y:=0 tf:="tb3"
+
+   ROS_NAMESPACE=tb3_4 roslaunch tbot_main trajectory.launch x:=0 y:=0 tf:="tb4"
+
+   ROS_NAMESPACE=tb3_5 roslaunch tbot_main trajectory.launch x:=0 y:=0 tf:="tb5"
+   ```
 ## Changing router
 
 Since the Turtlebots and Computer communicates over ROS via IP address, changing the router needs a lot of set-up. The following are needed.
