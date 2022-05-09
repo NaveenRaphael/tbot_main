@@ -8,6 +8,7 @@ project(tbot_main)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+cmake_modules
   geometry_msgs
   nav_msgs
   roscpp
@@ -16,8 +17,9 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   message_generation
-)
+) 
 
+find_package(Eigen3 REQUIRED)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -111,7 +113,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES tbot_main
- CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy sensor_msgs std_msgs tf message_runtime
+ CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rospy sensor_msgs std_msgs tf message_runtime DEPENDS Eigen3
 #  DEPENDS system_lib
 )
 
@@ -124,6 +126,7 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  # ${Eigen_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -213,6 +216,9 @@ include_directories(
 
 add_executable(velocityController src/velocityController.cpp)
 target_link_libraries(velocityController ${catkin_LIBRARIES})
+
+add_executable(dynamic src/dynamic.cpp)
+target_link_libraries(dynamic ${catkin_LIBRARIES})
 
 add_executable(positionController src/positionController.cpp)
 target_link_libraries(positionController ${catkin_LIBRARIES})

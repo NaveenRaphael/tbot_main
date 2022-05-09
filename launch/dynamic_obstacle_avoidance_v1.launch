@@ -1,0 +1,15 @@
+ <launch>
+
+<arg name="x"  default="0.0" doc="Initial X"/>
+<arg name="y"  default="0.0" doc="Initial Y"/>
+<arg name="tf"  default="turtle" doc="TF name"/>
+
+<rosparam  subst_value="True">
+x: $(arg x)
+y: $(arg y)
+tf: $(arg tf)
+</rosparam>
+<node pkg="tbot_main" type="velocityController" name="velocity_controller"/>
+<node pkg="tbot_main" type="positionController" name="position_controller" />
+<node pkg="tbot_main" type="dynamic" name="dynamic" output="screen"/>
+</launch>

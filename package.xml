@@ -14,7 +14,11 @@
   <!-- Commonly used license strings: -->
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
   <license>TODO</license>
-
+  <!-- <build_depend>cmake_modules</build_depend>
+  <exec_depend>cmake_modules</exec_depend>
+  
+  <run_depend>cmake_modules</run_depend>  -->
+ <build_depend>cmake_modules</build_depend>
 
   <!-- Url tags are optional, but multiple are allowed, one per tag -->
   <!-- Optional attribute type can be: website, bugtracker, or repository -->
