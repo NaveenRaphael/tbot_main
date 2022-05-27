@@ -14,8 +14,12 @@ Get the number of bots to follow via rosparam
 
 '''
 
-
 def real_sol(pts):
+    '''
+    Yields the solution using the cvxpy package
+
+    @param pts: list of points which are tracked
+    '''
     x = cvxpy.Variable(2)
 
     #Making the minimisation
@@ -30,7 +34,7 @@ def real_sol(pts):
     try:
         prob.solve()
     except cvxpy.SolverError:
-        rospy.loginfo(f"Solver failed again")
+        rospy.loginfo(f"Solver failed")
         return 0, (0, 0)
     return prob.value, x.value
 

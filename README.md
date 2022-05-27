@@ -1,17 +1,46 @@
 # Turtlebots!
+- [Turtlebots!](#turtlebots)
+  - [Introduction](#introduction)
+  - [Recommended references](#recommended-references)
+  - [Instructions to use](#instructions-to-use)
+    - [Setting up the computer](#setting-up-the-computer)
+    - [Controlling an individual turtlebot](#controlling-an-individual-turtlebot)
+    - [Controlling a swarm](#controlling-a-swarm)
+  - [Files](#files)
+    - [Service files:](#service-files)
+    - [Message Files:](#message-files)
+    - [Source files:](#source-files)
+  - [Troubleshooting](#troubleshooting)
+- [Appendix](#appendix)
+  - [Username and password of the bot](#username-and-password-of-the-bot)
+  - [Quick codes to copy paste:](#quick-codes-to-copy-paste)
+  - [Changing router](#changing-router)
 ## Introduction
 Hello there!
-This will be a comprehensive guide to using the turtlebots in the DCL.
+This will be a (almost) comprehensive guide to using the turtlebots in the DCL.
 This is presently a work in progress
 
+## Recommended references
+It is recommended that you know a little bit about ros (see [http://wiki.ros.org/ROS/Tutorials](http://wiki.ros.org/ROS/Tutorials)) and a little bit about the specifications of the turtlebot (see [this link](https://emanual.robotis.com/docs/en/platform/turtlebot3/features/#specifications)).
+
+About ros, it is ncessary to know about rostopics, rosnodes and the basics of running a program in ros. RQT and RVIZ are tools that make interacting with ROS easier, and you should be can run these by typing the name of these tools in any terminal.
+
 ## Instructions to use
-It is recommended to have `rqt` and `rviz` open while working with the robots.
+It is recommended to have `rqt` and `rviz` open while working with the robots. It is alsp recommended to follow the steps to control a swarm of turtlebots, since controlling a single turtlebot is but a specific case of the former. However, please do read the steps of both. 
+### Setting up the computer
+It is recommended to use a program that can open multiple instances of the terminal, like VS-code and X-terminal (use `ctrl+alt+t`).
+1. In one instance of the terminal, run `roscore`
+2. Have several instances of the terminal for the other programs to run
+   1. In general, I have 8 terminals open, with 2 more terminals having run `rqt` and `rviz`
 ### Controlling an individual turtlebot
-1. Switch on the robot, and connect to it via ssh (see [this](##Username-and-password-of-the-bot))
+1. Switch on the robot, and connect to it via ssh (see [this](#Username-and-password-of-the-bot))
+   1. There is a switch at the first "platform" of the turtlebot.
+   2. `ssh` is a tool to open the terminal of the robot in the computer
 2. Run the following in the terminal of the bot
    `roslaunch turtlebot3_bringup turtlebot3_robot.launch`
+   1. All the rostopics and rosnodes associated with the turtlebot will now be running. This can be seen in `rqt` 
 3. In another terminal, run `roslaunch tbot_main basic_control.launch`. This allows for position and velocity control of the robot
-4. In another terminal, run `rqt`. Open the service caller
+4. In another terminal, run `rqt` (if you have not already). Open the service caller
    1. Velocity can be changed by providing a `v` and `w` in the service `change_tbot_velocity`
    2.  Position can be changed by providing `x` an `y` in the service `change_tbot_pos`
 
@@ -46,7 +75,7 @@ Most of these commands can be copied from the [appendix](#quick-codes-to-copy-pa
    1. Identify the actual FTP solution and publishes in `tf`
    2. Identify the asymptotic solution of the FTP and publish in `tf`.
    3. Control the follower bot to follow the asymptotic solution
-3. [`obstacle.hpp`](src/obstacle.hpp) : (WIP)
+3. [`obstacle.hpp`](src/obstacle.hpp) : (WIP) (This was WIP a really long while back, and now I am not sure why I began this code)
 4.  [`point.hpp`](src/point.hpp) : Contains the point class which contains useful functions to model 2D points for turtlebots
 5.  [`positionController.cpp`](src/positionController.cpp) : Waits for the service [`positionRequest`](srv/positionRequest.srv) and calculated the velocity and omega to reach that point
     1.  The control law can be changed to suit the needs.
@@ -59,6 +88,8 @@ Most of these commands can be copied from the [appendix](#quick-codes-to-copy-pa
 8. [`velocityController.cpp`](src/velocityController.cpp) : Waits for the service [`velocityRequest`](srv/velocityRequest.srv)
    1. Event-triggered control ready
 9. [`trajectory_tracking.cpp`](src/trajectory_tracking.cpp) : Implements trajectory tracking implemented by the paper referenced. Can be used to implement position control 
+10. [`dynamic.cpp`](src/dynamic.cpp) : Implements Mrs. Rejitha's paper for obstacle avoidance. Presently only possible to run on tb0, because, yeah.
+11. [`dynamic_base.cpp`](src/dynamic_base.cpp) : Base code for the `dynamic.cpp` Written to debug. Can be removed. 
 
 
 ## Troubleshooting
@@ -70,10 +101,24 @@ The following are the problems I have faced;
    3.  run `source ~/.bashrc`
 3. Presently, the computers and the bots need to be connected to the router `CONTROL LAB 203C`. If it is not connected to this, please check the [appendix](##Changing-router)
 4. The computer sometimes disconnects from the network. Not sure why or when. Reconnect Dongle to fix.
+5. Turtlebot3 has faulty odometry readings.
+6. Turtlebot1 has to be ... reinstalled with a monitor?
 
 
 # Appendix
 ## Username and password of the bot
+To run ssh, you need to first identify the ip-address of the robot:
+   ```
+   nmap -sn 192.168.10.100-199
+   ```
+The computer itself would be one of the ip addresses listed here, and should be 192.168.10.107. If not, check [troubleshooting](#troubleshooting), and edit this section with the new IP address.
+On finding the ip address of the robot, run:
+```
+ssh ubuntu@<ip-address>
+```
+and then you connect to it with the password.
+See [this](#quick-codes-to-copy-paste) for easy ways to copy paste the commands. 
+
 These are presently the default. Say the IP address of the bot is `192.168.10.102`
 ```
 username:   ubuntu@192.168.10.102

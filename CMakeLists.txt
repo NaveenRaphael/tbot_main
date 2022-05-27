@@ -220,6 +220,9 @@ target_link_libraries(velocityController ${catkin_LIBRARIES})
 add_executable(dynamic src/dynamic.cpp)
 target_link_libraries(dynamic ${catkin_LIBRARIES})
 
+add_executable(dynamic_base src/dynamic_base.cpp)
+target_link_libraries(dynamic_base ${catkin_LIBRARIES})
+
 add_executable(positionController src/positionController.cpp)
 target_link_libraries(positionController ${catkin_LIBRARIES})
 

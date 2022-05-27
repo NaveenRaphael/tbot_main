@@ -1,5 +1,12 @@
 #ifndef TBOT_POINT2D
 #define TBOT_POINT2D
+
+/**
+ * @brief Class to handles points for my code. 
+ * 
+ * I should have ideally used normal class recommmended by ros, but I use this in too many places, so its too difficult to move away
+ * 
+ */
 class point2D{
 public:
     double x;
@@ -57,6 +64,13 @@ double point2D::get_angle(){
   return atan2(y,x);
 }
 
+/**
+ * @brief To find distance in the S2 Circle
+ * 
+ * @param toa From Angle
+ * @param fra To angle
+ * @return double the distance from angle1 to angle 2
+ */
 double s2dis(double toa, double fra)
 {
   double dif = toa - fra;

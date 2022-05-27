@@ -29,7 +29,7 @@ point2D SoftBody2::get_center(double time){
 }
 
 double SoftBody2::get_ithR(int n, double time){
-    return 0.5;
+    return 0.75;
 }
 
 double SoftBody2::get_orientation(double time){

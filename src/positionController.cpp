@@ -18,21 +18,16 @@
 #define Pv 5
 #define Pw 5
 
-/*
-TODO
-/Done
-
-Position Drive: listens to end position; current position; generates command velocity
-
-*/
-
+/**
+ * @brief Gets end position via a service, and generates velocity which is is sent via another service
+ * 
+ */
 class Position_drive
 {
 public:
     Position_drive();
     ~Position_drive();
-    bool init(double, double);
-    bool loop();                               //Run every iteration
+    void loop();                               //Run every iteratio
     void update_fpos(double, double);          //Update end position
     void update_vel();                         //Generate velocities
 
@@ -50,7 +45,6 @@ public:
 private:
     // ROS NodeHandle
     ros::NodeHandle nh_priv_;
-
     ros::ServiceClient cmd_vel_pub_;
 
     point2D start;
@@ -66,26 +60,46 @@ private:
     double om;
 };
 
+/**
+ * @brief Construct a new Position_drive::Position_drive object
+ * 
+ * First starts the node_handle, and gets the rosparams
+ * Initialises other variables and ros functions
+ * 
+ */
 Position_drive::Position_drive()
     : nh_priv_("~")
 {
-    //Init gazebo ros turtlebot3 node
     double x, y;
     nh_.getParam("x", x);
     nh_.getParam("y", y);
     nh_.getParam("tf", TF_name);
     ROS_INFO("TurtleBot3 Position Node Init");
-    // ROS_INFO(x)
-    auto ret = init(x, y);
-    ROS_ASSERT(ret);
+
+    start = point2D(-x, -y);
+    ROS_INFO("Start position: %f, %f", start.x, start.y);
+
+    cmd_vel_pub_ = nh_.serviceClient<tbot_main::velocityRequest>("change_tbot_vel");
+    change_pos = nh_.advertiseService("change_tbot_pos", &Position_drive::store_position, this);
+    
+    get_odom = nh_.subscribe("odom", 1000, &Position_drive::update_ipos, this);
+
     lazy = true;
 }
-
+/**
+ * @brief Destroy the Position_drive::Position_drive object
+ * 
+ */
 Position_drive::~Position_drive()
 {
     ros::shutdown();
 }
 
+/**
+ * @brief Gets the odometry data from the robot and updates the position
+ * 
+ * @param data Odometry data from the robot
+ */
 void Position_drive::update_ipos(const nav_msgs::Odometry &data)
 {
     double x = data.pose.pose.position.x;
@@ -104,19 +118,11 @@ void Position_drive::update_ipos(const nav_msgs::Odometry &data)
     ori = ang;
 }
 
-bool Position_drive::init(double x, double y)
-{
-    // initialize publishers
-    start = point2D(-x, -y);
-    ROS_INFO("Start position: %f, %f", start.x, start.y);
-    cmd_vel_pub_ = nh_.serviceClient<tbot_main::velocityRequest>("change_tbot_vel");
-    change_pos = nh_.advertiseService("change_tbot_pos", &Position_drive::store_position, this);
-    get_odom = nh_.subscribe("odom", 1000, &Position_drive::update_ipos, this);
-
-    return true;
-}
-
-bool Position_drive::loop()
+/**
+ * @brief Function to call inside ros::ok()
+ * 
+ */
+void Position_drive::loop()
 {
     if (!lazy)
     {
@@ -128,28 +134,33 @@ bool Position_drive::loop()
 
         cmd_vel_pub_.call(val);
     }
-    return true;
 }
 
+/**
+ * @brief Function for the service, updates the new end position
+ * 
+ * @param r request: The position the robot is supposed to go
+ * @param g response: True, 
+ * @return true Always returns true, needed by ros
+ * @return false 
+ */
 bool Position_drive::store_position(
     tbot_main::positionRequest::Request &r,
     tbot_main::positionRequest::Response &g)
 {
-    update_fpos(r.x, r.y);
+    fin.x = r.x;
+    fin.y = r.y;
+    lazy = false;
+
     g.r = true;
     return true;
 }
 
-void Position_drive::update_fpos(double x, double y)
-{
-    fin.x = x;
-    fin.y = y;
-    lazy = false;
-}
-/*
-Control Law:
-Given present position, and final position, to find v and omega
-*/
+
+/**
+ * @brief Given the endpoint is not close enough to the present position of the robot, updates the command velocities.
+ * 
+ */
 void Position_drive::update_vel()
 {
     point2D error = fin - present;
@@ -169,6 +180,11 @@ void Position_drive::update_vel()
     om = Pw*eror;
 }
 
+/**
+ * @brief Gets the tf transfrom of this robot
+ * 
+ * @return tf::Transform 
+ */
 tf::Transform Position_drive::get_transform()
 {
     tf::Transform transform;
@@ -179,6 +195,11 @@ tf::Transform Position_drive::get_transform()
     return transform;
 }
 
+/**
+ * @brief Returns the name of the tf frame
+ * 
+ * @return std::string 
+ */
 std::string Position_drive::get_TF_name()
 {
     return TF_name;
