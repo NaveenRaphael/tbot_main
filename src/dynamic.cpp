@@ -18,6 +18,8 @@
  * @brief Implements Mrs Rejitha's dynamical approach for obstacle avoidance
  *
  * @todo Fix the bug that rosnamespace does not work for this
+ * 
+ * 
  *
  * This looks like completed code, if I say so myself
  *
@@ -515,13 +517,14 @@ void Robot<N>::publish()
     tf::Quaternion q;
     q.setRPY(0, 0, 0);
     temp.setRotation(q);
-    tf_broad.sendTransform(tf::StampedTransform(temp, ros::Time::now(), "world", "testing"));
+    tf_broad.sendTransform(tf::StampedTransform(temp, ros::Time::now(), "world", name+"_igoal"));
 }
 
 int main(int argc, char *argv[])
 {
     ros::init(argc, argv, "tbot_dynamic_obstacle_avoidance");
-    ros::NodeHandle nh("~");
+
+    ros::NodeHandle nh;
     tf::TransformListener tf_listener;
     const int n = 2;
     Robot<n> rob("/tb0", nh, tf_listener);
