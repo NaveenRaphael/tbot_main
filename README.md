@@ -23,7 +23,7 @@ This is presently a work in progress
 ## Recommended references
 It is recommended that you know a little bit about ros (see [http://wiki.ros.org/ROS/Tutorials](http://wiki.ros.org/ROS/Tutorials)) and a little bit about the specifications of the turtlebot (see [this link](https://emanual.robotis.com/docs/en/platform/turtlebot3/features/#specifications)).
 
-About ros, it is ncessary to know about rostopics, rosnodes and the basics of running a program in ros. RQT and RVIZ are tools that make interacting with ROS easier, and you should be can run these by typing the name of these tools in any terminal.
+About ros, it is ncessary to know about rostopics, rosnodes and the basics of running a program in ros. RQT and RVIZ are tools that make interacting with ROS easier, and you can run these by typing the name of these tools in any terminal.
 
 ## Instructions to use
 It is recommended to have `rqt` and `rviz` open while working with the robots. It is alsp recommended to follow the steps to control a swarm of turtlebots, since controlling a single turtlebot is but a specific case of the former. However, please do read the steps of both. 
@@ -52,7 +52,7 @@ Most of these commands can be copied from the [appendix](#quick-codes-to-copy-pa
  `ROS_NAMESPACE=<name_i> roslaunch turtlebot3_bringup turtlebot3_robot.launch multi_robot_name:="<name_i>" set_lidar_frame_id:="<name_i>/base_scan"`
 3. In step 3, run `ROS_NAMESPACE=<name_i> roslaunch tbot_main trajectory.launch x:=<x_pos_i> y:= <y_pos_i> tf:=<name_of_tf_frame _i>`
 4. This requires a nodes to publish trajectory data. This is done in 2 ways;
-   1. `rosrun tbot_main swarm_motion2`. Presently this code forces the bots to move in a circular trajectory
+   1. `rosrun tbot_main swarm_motion3`. Write and compile the code with the trajectory of the different robots 
    2. `ROS_NAMESPACE=<name_i> rosrun tbot_main P2T` converts a sequence of points to trajectories
 
 ## Files
@@ -71,7 +71,7 @@ Most of these commands can be copied from the [appendix](#quick-codes-to-copy-pa
    5. `w`: Angular velocity at that point on the trajectory
 ### Source files:
 1. [`softbody.hpp`](src/softbody.hpp) : (WIP) In line of a "Rigid Body"; the body has a position and orientation at every instant, but the distance between any point and the center can change. This was made to model a swarm; the position of every point on the swarm can be specified. 
-2. [`FTP.py`](src/FTP.py) : Does 3 things:
+2. [`FTP.py`](src/FTP.py) : (Fermat Toricelli Problem) Does 3 things:
    1. Identify the actual FTP solution and publishes in `tf`
    2. Identify the asymptotic solution of the FTP and publish in `tf`.
    3. Control the follower bot to follow the asymptotic solution
@@ -85,11 +85,12 @@ Most of these commands can be copied from the [appendix](#quick-codes-to-copy-pa
    1. The velocity and omega of the whole body can be controlled.
    2. The r and phi of each of the bot from the CoM can also be controlled
 7. [`swarm_motion2.cpp`](src/swarm_motion2.cpp) : Implements the swarm as a "SoftBody". Uses trajectory control
-8. [`velocityController.cpp`](src/velocityController.cpp) : Waits for the service [`velocityRequest`](srv/velocityRequest.srv)
+8. [`swarm_motion3.cpp`](src/swarm_motion3.cpp) : A better swarm motion code that deprecates several previous codes.
+9. [`velocityController.cpp`](src/velocityController.cpp) : Waits for the service [`velocityRequest`](srv/velocityRequest.srv)
    1. Event-triggered control ready
-9. [`trajectory_tracking.cpp`](src/trajectory_tracking.cpp) : Implements trajectory tracking implemented by the paper referenced. Can be used to implement position control 
-10. [`dynamic.cpp`](src/dynamic.cpp) : Implements Mrs. Rejitha's paper for obstacle avoidance. Presently only possible to run on tb0, because, yeah.
-11. [`dynamic_base.cpp`](src/dynamic_base.cpp) : Base code for the `dynamic.cpp` Written to debug. Can be removed. 
+10. [`trajectory_tracking.cpp`](src/trajectory_tracking.cpp) : Implements trajectory tracking implemented by the paper referenced. Can be used to implement position control 
+11. [`dynamic.cpp`](src/dynamic.cpp) : Implements Mrs. Rejitha's paper for obstacle avoidance. Presently only possible to run on tb0, because, yeah.
+12. [`dynamic_base.cpp`](src/dynamic_base.cpp) : Base code for the `dynamic.cpp` Written to debug. Can be removed. 
 
 
 ## Troubleshooting
