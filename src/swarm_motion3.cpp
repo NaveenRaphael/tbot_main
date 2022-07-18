@@ -3,15 +3,12 @@
 #include "tbot_main/trajectory.h"
 #include <geometry_msgs/Twist.h>
 #include "point.hpp"
+#include "common_paths.hpp"
 #include "softbody.hpp"
 #include <tf/transform_broadcaster.h>
 #include <nav_msgs/Odometry.h>
 #include <math.h>
 #include <functional>
-
-point2D roundedSquare(double);
-
-#define EPS 0.01
 /**
  * @brief A better trajectory controlling code
  *
@@ -99,11 +96,9 @@ int main(int argc, char *argv[])
 
     std::array<trajectory, 2> swarms{
         trajectory(1, n, br, [](double t)
-                   {
-            double phase = 0.2 * t;
-            return point2D(0.5, 0.5) + point2D(sin(phase), cos(phase)) * 0.5; }),
-
-        trajectory(3, n, br, roundedSquare)};
+                   { return circle_base(t, point2D(1, 1), 0.4, 2*M_PI / 30); }),
+        trajectory(2, n, br, [](double t)
+                   { return roundedSquare_base(t, point2D(0.3, 0.3), 12, 1.4, 0.4); })};
 
     ros::Rate loop_rate(10);
     while (ros::ok())
@@ -118,96 +113,4 @@ int main(int argc, char *argv[])
     }
 
     return 0;
-}
-
-/**
- * Some basic trajectories:
- *Circle
-[](double t){
-double phase=omega *t;
-return point2D(center.x, center.y)+ point2D(sin(phase), cos(phase))*radius;}
- *
- */
-
-point2D square(double t)
-{
-    double time_for_one_side = 3;
-    double side_length = 1.5;
-    point2D start(0, 0);
-    point2D side_1(side_length, 0);
-    point2D side_2(0, side_length);
-    int count = int(t / time_for_one_side);
-    double leftover = (t - count * time_for_one_side);
-    switch (count % 4)
-    {
-    case 0:
-        return start + side_1 * leftover;
-    case 1:
-        return start + side_1 + side_2 * leftover;
-    case 2:
-        return start + side_1 * (1 - leftover) + side_2;
-    case 3:
-        return start + side_2 * (1 - leftover);
-    }
-}
-/**
- * @brief returns the position on a rounded square given time t
- * 
- * @param t time to get the point 
- * @return point2D 
- */
-point2D roundedSquare(double t)
-{
-    double time_for_one_side = 10;
-    double side_length = 1.5;
-    double radius = 0.25 * side_length / 2;
-
-    assert(radius<side_length);
-
-    int count = int(t / time_for_one_side);
-    double leftover = t - count * time_for_one_side;
-
-    point2D start(0, 0);
-    point2D side_1(1, 0);
-    point2D side_2(0, 1);
-
-    double mt = (side_length - 2 * radius) / (side_length - (2 - M_PI / 2) * radius) * time_for_one_side;
-    double vel = ((side_length - (2 - M_PI / 2) * radius)) / time_for_one_side;
-
-    if (leftover < mt)
-    {
-        /**
-         * @brief straight line part
-         * 
-         */
-        switch (count % 4)
-        {
-        case 0:
-            return start + side_1 * leftover * vel - side_2 * radius;
-        case 1:
-            return start + side_1 * (side_length - radius) + side_2 * leftover * vel;
-        case 2:
-            return start + side_1 * (side_length - 2 * radius - leftover * vel) + side_2 * (side_length - radius);
-        case 3:
-            return start - side_1 * radius + side_2 * (side_length - 2 * radius - leftover * vel);
-        }
-    }
-    else
-    {
-        /**
-         * @brief Curved part
-         * 
-         */
-        switch (count % 4)
-        {
-        case 0:
-            return start + side_1 * (side_length - 2 * radius) + (side_2 * -radius).rotate(-(M_PI / 2) / (time_for_one_side - mt + EPS) *(leftover - mt));
-        case 1:
-            return start + (side_1 + side_2) * (side_length - 2 * radius) + (side_1 * radius).rotate(-(M_PI / 2) / (time_for_one_side - mt + EPS) *(leftover - mt));
-        case 2:
-            return start + side_2 * (side_length - 2 * radius) + (side_2 * radius).rotate(-(M_PI / 2) / (time_for_one_side - mt + EPS) *(leftover - mt));
-        case 3:
-            return start + (side_1 * -radius).rotate(-(M_PI / 2) / (time_for_one_side - mt + EPS) *(leftover - mt));
-        }
-    }
 }

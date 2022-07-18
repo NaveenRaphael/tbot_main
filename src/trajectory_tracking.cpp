@@ -143,7 +143,7 @@ void Trajectory_control::update_vel()
     v= togo.v+ c1*errorP.x/denom;
     om=togo.w + c2*togo.v*(errorP.y*cos(errorT/2)-errorP.x*sin(errorT/2))/denom+ c3*sin(errorT/2);
     
-    ROS_INFO("v:%.3f, w: %.3f, error_x: %.3f, error_y: %.3f, error_orient: %.3f", v, om, errorP.x, errorP.y, errorT*RAD2DEG);
+    // ROS_INFO("v:%.3f, w: %.3f, error_x: %.3f, error_y: %.3f, error_orient: %.3f", v, om, errorP.x, errorP.y, errorT*RAD2DEG);
 
 }
 

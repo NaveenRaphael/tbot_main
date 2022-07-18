@@ -84,7 +84,7 @@ Most of these commands can be copied from the [appendix](#quick-codes-to-copy-pa
 6. [`swarm_motion.cpp`](src/swarm_motion.cpp) : (Deprecated) Implements the swarm as a "SoftBody". 
    1. The velocity and omega of the whole body can be controlled.
    2. The r and phi of each of the bot from the CoM can also be controlled
-7. [`swarm_motion2.cpp`](src/swarm_motion2.cpp) : Implements the swarm as a "SoftBody". Uses trajectory control
+7. [`swarm_motion2.cpp`](src/swarm_motion2.cpp) : (Deprecated) Implements the swarm as a "SoftBody". Uses trajectory control
 8. [`swarm_motion3.cpp`](src/swarm_motion3.cpp) : A better swarm motion code that deprecates several previous codes.
 9. [`velocityController.cpp`](src/velocityController.cpp) : Waits for the service [`velocityRequest`](srv/velocityRequest.srv)
    1. Event-triggered control ready

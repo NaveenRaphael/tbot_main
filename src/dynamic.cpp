@@ -18,8 +18,8 @@
  * @brief Implements Mrs Rejitha's dynamical approach for obstacle avoidance
  *
  * @todo Fix the bug that rosnamespace does not work for this
- * 
- * 
+ *
+ *
  *
  * This looks like completed code, if I say so myself
  *
@@ -281,6 +281,7 @@ bool Robot<N>::store_position(tbot_main::positionRequest::Request &r,
     set_zero();
 
     destination << r.x, r.y;
+    ROS_INFO("New Destination: (%.3f,%.3f)", r.x, r.y);
     g.r = true;
     return true;
 }
@@ -517,7 +518,7 @@ void Robot<N>::publish()
     tf::Quaternion q;
     q.setRPY(0, 0, 0);
     temp.setRotation(q);
-    tf_broad.sendTransform(tf::StampedTransform(temp, ros::Time::now(), "world", name+"_igoal"));
+    tf_broad.sendTransform(tf::StampedTransform(temp, ros::Time::now(), "world", name + "_igoal"));
 }
 
 int main(int argc, char *argv[])
@@ -526,7 +527,7 @@ int main(int argc, char *argv[])
 
     ros::NodeHandle nh;
     tf::TransformListener tf_listener;
-    const int n = 2;
+    const int n = 4;
     Robot<n> rob("/tb0", nh, tf_listener);
 
     /**
@@ -534,18 +535,23 @@ int main(int argc, char *argv[])
      *
      */
     std::array<std::unique_ptr<Obstacle>, n> obs{
-        // std::make_unique<Robot_Obstacle>(Robot_Obstacle("tb1", tf_listener)),
-        // std::make_unique<Robot_Obstacle>(Robot_Obstacle("tb2")),
+        std::make_unique<Robot_Obstacle>(Robot_Obstacle("tb1", tf_listener)),
+        std::make_unique<Robot_Obstacle>(Robot_Obstacle("tb2", tf_listener)),
         std::make_unique<Virtual_Obstacle>(
             Virtual_Obstacle(
                 "Virtual_1", [](double t)
-                { return Vector2d(2, 1); },
+                { return Vector2d(2.1, 1); },
                 0.1)),
         std::make_unique<Virtual_Obstacle>(
             Virtual_Obstacle(
                 "Virtual_2", [](double t)
-                { return Vector2d(1, 2); },
+                { return Vector2d(1, 2.1); },
                 0.1)),
+        // std::make_unique<Virtual_Obstacle>(
+        //     Virtual_Obstacle(
+        //         "Virtual_2", [](double t)
+        //         { return Vector2d(1, 2); },
+        //         0.1)),
         // // std::make_unique<Virtual_Obstacle>(Virtual_Obstacle(
         // "Virtual_3", [](double t)
         // { return Vector2d(1, 2); },
